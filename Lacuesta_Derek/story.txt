@@ -1,0 +1,13 @@
+1 | You wake up in a forest clearing. There are two paths. | 2 | 3
+2 | You follow the path to the left and encounter a river. | 4 | 5
+3 | You go right and find an old cabin. | 5 | 6
+4 | You swim across the river and find a treasure chest. | -1 | -1
+5 | You find a hidden passageway that leads to a secret room. | 7 | 8
+6 | The cabin is empty. You find a trapdoor leading downwards. | 9 | 10
+7 | Inside the secret room, you discover an ancient artifact. | -1 | -1
+8 | A mysterious figure offers you a choice: power or wisdom. | 11 | 12
+9 | The trapdoor leads to an underground labyrinth. | 13 | -1
+10 | You find an old journal with clues about the forest. | -1 | -1
+11 | You choose power, gaining immense strength but losing your way. | -1 | -1
+12 | You choose wisdom and suddenly understand the secrets of the forest. | -1 | -1
+13 | You navigate the labyrinth and find an exit to a hidden valley. | -1 | -1
