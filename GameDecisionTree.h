@@ -12,7 +12,6 @@ template <typename T>
 class GameDecisionTree {
 private:
     Node<T>* root;
-    unordered_map<int, Node<T>*> nodeMap;
 
 public:
     // TODO: Constructor
@@ -20,70 +19,101 @@ public:
 
     // TODO: Function to load story data from a text file and build the binary tree
     void loadStoryFromFile(const std::string& filename, char delimiter) {
-        ifstream file(filename);
+        std::ifstream file(filename);
+
+        //Prints if the file could not open
         if (!file.is_open()) {
-            cout << "Could not open file!" << endl;
+            std::cout << "Could not open file" << filename << std::endl;
             return;
         }
-        cout << "file: " <<filename << endl;
+        std::unordered_map<int, Node<T>*> nodeMap;
+        //To hold the event of every line in story.txt
+        std::string line;
 
+        while (std::getline(file, line)){
+            std::stringstream ss(line);
+            std::string eventStr, desc, leftStr, rightStr;
 
-        string line;
-        while (getline(file,line)) {
-            stringstream ss(line);
-            string desc;
-            int num, left, right;
+            //Following the format of the story.txt
+            std::getline(ss, eventStr, delimiter);
+            std::getline(ss, desc, delimiter);
+            std::getline(ss, leftStr, delimiter);
+            std::getline(ss, rightStr, delimiter);
 
-            getline(ss, desc, delimiter);
-            ss >> num >> left >> right;
-
-            Story story(desc, num, left, right);
-
-            if (nodeMap.find(num) == nodeMap.end()) {
-                nodeMap[num] = new Node<T>(story);
-            } else {
-                nodeMap[num]->data = story;
+            if (eventStr.empty() || leftStr.empty() || rightStr.empty()) {
+                std::cout << "Invalid Line: " << line << "\n";
+                continue;
             }
-            if (root == nullptr) {
-                root = nodeMap[num];
+
+            //Changes the string numbers into int
+            int eventNumber = std::stoi(eventStr);
+            int leftNumber = std::stoi(leftStr);
+            int rightNumber = std::stoi(rightStr);
+
+            T story(desc, eventNumber, leftNumber, rightNumber);
+
+            Node<T>* node = new Node<T>(story);
+
+            nodeMap[eventNumber] = node;
+        }
+
+        //loop goes through the nodeMap and connects each node to its corresponding children.
+        for (auto& pair : nodeMap){
+            Node<T>* node = pair.second;
+            if (nodeMap.count(node->data.leftEventNumber)) {
+                node->left = nodeMap[node->data.leftEventNumber];
+            }
+            if (nodeMap.count(node->data.rightEventNumber)) {
+                node->right = nodeMap[node->data.rightEventNumber];
             }
         }
-        for (auto& pair : nodeMap) {
-            Story& story = pair.second->data;
-            if (story.leftEventNumber != -1) {
-                if (nodeMap.find(story.leftEventNumber) == nodeMap.end()) {
-                    nodeMap[story.leftEventNumber] = new Node<T>(Story("Missing", story.leftEventNumber, -1, -1));
-                }
-                pair.second->left = nodeMap[story.leftEventNumber];
-            }
-            if (story.rightEventNumber != -1) {
-                if (nodeMap.find(story.rightEventNumber) == nodeMap.end()) {
-                    nodeMap[story.rightEventNumber] = new Node<T>(Story("Missing", story.rightEventNumber, -1, -1));
-                }
-                pair.second->right = nodeMap[story.rightEventNumber];
-            }
+
+        root = nodeMap.count(1) ? nodeMap[1] : nullptr;
+        if (root == nullptr) {
+            std::cout <<"Could not find root node\n" << std::endl;
         }
     }
 
+
+
     // TODO: Function to start the game and traverse the tree based on user input
-    void playGame() {
+    void playGame()
+    {
+        if (!root){
+            std::cout << "No story";
+            return;
+        }
+
         Node<T>* current = root;
-        while (current) {
-            cout << "Event " << current->data.eventNumber << ": " << current->data.description << endl;
+        while (current){
+            std::cout << current->data.description << "\n";
             if (!current->left && !current->right) {
-                cout << "Game Failed!" << endl;
-                break;
+                std::cout << "Game Over!"<< std::endl;
             }
-            cout << "Press 1 for left or 2 for right: ";
+
+
+            std::cout << "choose path:\n";
+            if (current->left) std::cout<< "1: Proceed left\n";
+            if (current->right) std::cout<< "2: Proceed right\n";
+
             int choice;
-            cin >> choice;
+            std::cout << "Type 1 or 2";
+            std::cin >> choice;
+
+            if (std::cin.fail() || (choice != 1 && choice != 2)){
+                std::cin.clear();
+                std::cin.ignore(1000, '\n');
+                std::cout << "Invalid Option. Please enter 1 or 2.\n";
+                continue;
+            }
+
 
             if (choice == 1 && current->left) {
                 current = current->left;
-            } else if (choice == 2 && current->right) {
-                current = current-> right;
-            } else {
-                cout << "Invalid Choice." << endl;
+            }else if (choice == 2 && current->right){
+                current = current->right;
+            } else{
+                std::cout << "Path does not Exist, Use another path\n";
             }
         }
     }
